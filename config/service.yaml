@@ -16,3 +16,8 @@ app:
       password: u)36P/wG7Vg3
       addr: 10.3.136.13:3306
       db: dayuwen
+  redis:
+    localDemo:
+      addr: 10.3.136.13:6379
+      password: 1024
+      DB: 0

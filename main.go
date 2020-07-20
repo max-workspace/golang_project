@@ -9,8 +9,9 @@ import (
 )
 
 func main() {
-	fmt.Println("start project")
 	config.Init()
 	log.Init()
-	fmt.Printf("project name: %s\n", viper.GetString("app.name"))
+
+	msg := fmt.Sprintf("project init finish! project name: %s", viper.GetString("app.name"))
+	log.DebugLogger.Debug(msg)
 }

@@ -1,2 +1,7 @@
 app:
   name: project
+  log:
+    path:
+      access: logs/access.log
+      debug: logs/debug.log
+      error: logs/error.log

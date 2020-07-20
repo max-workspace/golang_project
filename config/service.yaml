@@ -5,3 +5,14 @@ app:
       access: logs/access.log
       debug: logs/debug.log
       error: logs/error.log
+  mysql:
+    localDemo:
+      user: root
+      password: 123456
+      addr: 127.0.0.1:3306
+      db: demo
+    dayuwen:
+      user: dev
+      password: u)36P/wG7Vg3
+      addr: 10.3.136.13:3306
+      db: dayuwen

@@ -7,7 +7,6 @@ import (
 	// mysql import mysql driver
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -16,14 +15,10 @@ var (
 )
 
 // Init dayuwen db
-func Init() {
+func Init(user, password, addr, db string) {
 	var err error
 
-	dsn := fmt.Sprintf("%s:%s@%s(%s)/%s",
-		viper.GetString("app.mysql.dayuwen.user"),
-		viper.GetString("app.mysql.dayuwen.password"),
-		"tcp", viper.GetString("app.mysql.dayuwen.addr"),
-		viper.GetString("app.mysql.dayuwen.db"))
+	dsn := fmt.Sprintf("%s:%s@%s(%s)/%s", user, password, "tcp", addr, db)
 	DB, err = gorm.Open("mysql", dsn)
 	if err != nil {
 		panic(err)

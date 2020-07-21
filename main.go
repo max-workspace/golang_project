@@ -21,22 +21,23 @@ func main() {
 	log.Debug(msg)
 
 	testRedis()
-	return
-
 	testDayuwenDB()
 }
 
 func testDayuwenDB() {
-	dayuwen.Init()
-	course := getCourseByCourseID(1)
+	app := app.Instance()
+	config := app.GetConfig()
+	dayuwen.Init(
+		config.GetString("app.mysql.dayuwen.user"),
+		config.GetString("app.mysql.dayuwen.password"),
+		config.GetString("app.mysql.dayuwen.addr"),
+		config.GetString("app.mysql.dayuwen.db"),
+	)
+	var dsCourse model.DsCourse
+	var course model.DsCourse
+	dayuwen.DB.Model(dsCourse).Where("id = ?", 1).Find(&course)
 	fmt.Println(course.CourseID, course.CourseName)
 	dayuwen.DB.Close()
-}
-
-func getCourseByCourseID(courseID int) (course model.DsCourse) {
-	var dsCourse model.DsCourse
-	dayuwen.DB.Model(dsCourse).Where("id = ?", 1).Find(&course)
-	return
 }
 
 func testRedis() {

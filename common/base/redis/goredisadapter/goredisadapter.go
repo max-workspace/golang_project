@@ -28,7 +28,6 @@ func New(addr, password string, db int) *adapter {
 		adapterInstance.redisClient = redisClientInstance
 	})
 	return adapterInstance
-
 }
 
 func (redis *adapter) Close() error {

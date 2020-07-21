@@ -3,6 +3,7 @@ package app
 import (
 	"project/common/base/config"
 	"project/common/base/log"
+	"project/common/base/log/zapadapter"
 	"project/common/base/redis"
 	"project/common/base/redis/goredisadapter"
 	"sync"
@@ -51,12 +52,13 @@ func (app *application) GetConfig() config.Instance {
 // GetLog get log singleton
 func (app *application) GetLog() log.Instance {
 	loadLogOnce.Do(func() {
-		logInstance := log.NewLogger(app.GetConfig().GetString("app.log.path.debug"), zapcore.DebugLevel, 128, 30, 7, true, app.GetConfig().GetString("app.name"))
+		logInstance := zapadapter.New(app.GetConfig().GetString("app.log.path.debug"), zapcore.DebugLevel, 128, 30, 7, true, app.GetConfig().GetString("app.name"))
 		app.log = logInstance
 	})
 	return app.log
 }
 
+// GetRedis get redis singleton
 func (app *application) GetRedis() redis.Instance {
 	loadRedisOnce.Do(func() {
 		redisInstance := goredisadapter.New(app.GetConfig().GetString("app.redis.localDemo.addr"), app.GetConfig().GetString("app.redis.localDemo.password"), app.GetConfig().GetInt("app.redis.localDemo.DB"))

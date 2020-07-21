@@ -1,17 +1,31 @@
-package log
+package zapadapter
 
 import (
 	"os"
+	"sync"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-// NewLogger new log
-func NewLogger(filePath string, level zapcore.Level, maxSize int, maxBackups int, maxAge int, compress bool, serviceName string) *zap.Logger {
-	core := newCore(filePath, level, maxSize, maxBackups, maxAge, compress)
-	return zap.New(core, zap.AddCaller(), zap.Development(), zap.Fields(zap.String("serviceName", serviceName)))
+type adapter struct {
+	zapLogger *zap.Logger
+}
+
+var (
+	adapterInstance *adapter
+	loadAdapterOnce sync.Once
+)
+
+// New new log adapter
+func New(filePath string, level zapcore.Level, maxSize int, maxBackups int, maxAge int, compress bool, serviceName string) *adapter {
+	loadAdapterOnce.Do(func() {
+		adapterInstance = &adapter{}
+		core := newCore(filePath, level, maxSize, maxBackups, maxAge, compress)
+		adapterInstance.zapLogger = zap.New(core, zap.AddCaller(), zap.Development(), zap.Fields(zap.String("serviceName", serviceName)))
+	})
+	return adapterInstance
 }
 
 func newCore(filePath string, level zapcore.Level, maxSize int, maxBackups int, maxAge int, compress bool) zapcore.Core {
@@ -46,4 +60,28 @@ func newCore(filePath string, level zapcore.Level, maxSize int, maxBackups int, 
 		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(&hook)), // 打印到控制台和文件
 		atomicLevel, // 日志级别
 	)
+}
+
+func (log *adapter) Debug(msg string) {
+	log.zapLogger.Debug(msg)
+}
+
+func (log *adapter) Info(msg string) {
+	log.zapLogger.Info(msg)
+}
+
+func (log *adapter) Warn(msg string) {
+	log.zapLogger.Warn(msg)
+}
+
+func (log *adapter) Error(msg string) {
+	log.zapLogger.Error(msg)
+}
+
+func (log *adapter) Panic(msg string) {
+	log.zapLogger.Panic(msg)
+}
+
+func (log *adapter) Fatal(msg string) {
+	log.zapLogger.Fatal(msg)
 }

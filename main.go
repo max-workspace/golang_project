@@ -4,24 +4,26 @@ import (
 	"fmt"
 	"project/common/base/app"
 	"project/common/base/db/dayuwen"
-	"project/common/base/redis"
 	"project/model"
 )
 
 func main() {
-	app := app.Instance()
+	defer func() {
+		// 关闭本次启动加载的资源
+		app := app.Instance()
+		app.GetRedis().Close()
+	}()
 
+	app := app.Instance()
 	log := app.GetLog()
 	config := app.GetConfig()
 	msg := fmt.Sprintf("project init finish! project name: %s", config.GetString("app.name"))
 	log.Debug(msg)
-	fmt.Println(config.GetString("app.name"))
+
+	testRedis()
 	return
 
-	redis.Init()
-
 	testDayuwenDB()
-	testRedis()
 }
 
 func testDayuwenDB() {
@@ -38,11 +40,12 @@ func getCourseByCourseID(courseID int) (course model.DsCourse) {
 }
 
 func testRedis() {
-	err := redis.Client.Set("key", "value", 0).Err()
+	app := app.Instance()
+	err := app.GetRedis().Set("key", "value", 0)
 	if err != nil {
 		panic(err)
 	}
-	val, err := redis.Client.Get("key").Result()
+	val, err := app.GetRedis().Get("key")
 	if err != nil {
 		panic(err)
 	}

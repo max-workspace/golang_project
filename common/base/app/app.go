@@ -3,6 +3,8 @@ package app
 import (
 	"project/common/base/config"
 	"project/common/base/log"
+	"project/common/base/redis"
+	"project/common/base/redis/goredisadapter"
 	"sync"
 
 	"github.com/spf13/viper"
@@ -12,6 +14,7 @@ import (
 type application struct {
 	config config.Instance
 	log    log.Instance
+	redis  redis.Instance
 }
 
 var (
@@ -19,6 +22,7 @@ var (
 	loadAppOnce    sync.Once
 	loadConfigOnce sync.Once
 	loadLogOnce    sync.Once
+	loadRedisOnce  sync.Once
 )
 
 // Instance get application singleton
@@ -51,4 +55,12 @@ func (app *application) GetLog() log.Instance {
 		app.log = logInstance
 	})
 	return app.log
+}
+
+func (app *application) GetRedis() redis.Instance {
+	loadRedisOnce.Do(func() {
+		redisInstance := goredisadapter.New(app.GetConfig().GetString("app.redis.localDemo.addr"), app.GetConfig().GetString("app.redis.localDemo.password"), app.GetConfig().GetInt("app.redis.localDemo.DB"))
+		app.redis = redisInstance
+	})
+	return app.redis
 }

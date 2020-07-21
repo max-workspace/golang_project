@@ -1,24 +1,15 @@
 package redis
 
 import (
-	"github.com/go-redis/redis"
-	"github.com/spf13/viper"
+	"time"
 )
 
-var (
-	// Client client
-	Client *redis.Client
-)
-
-// Init redis client
-func Init() {
-	Client = redis.NewClient(&redis.Options{
-		Addr:     viper.GetString("app.redis.localDemo.addr"),
-		Password: viper.GetString("app.redis.localDemo.password"),
-		DB:       viper.GetInt("app.redis.localDemo.DB"),
-	})
-	_, err := Client.Ping().Result()
-	if err != nil {
-		panic(err)
-	}
+// Instance redis interface
+type Instance interface {
+	Close() error
+	Exists(keys ...string) error
+	Expire(key string, expiration time.Duration) error
+	Set(key string, value interface{}, expiration time.Duration) error
+	Get(key string) (string, error)
+	Del(keys ...string) error
 }

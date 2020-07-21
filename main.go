@@ -2,22 +2,23 @@ package main
 
 import (
 	"fmt"
-	"project/common/base/config"
+	"project/common/base/app"
 	"project/common/base/db/dayuwen"
-	"project/common/base/log"
 	"project/common/base/redis"
 	"project/model"
-
-	"github.com/spf13/viper"
 )
 
 func main() {
-	fmt.Println("launch project")
-	config.Init()
-	log.Init()
+	app := app.Instance()
+
+	log := app.GetLog()
+	config := app.GetConfig()
+	msg := fmt.Sprintf("project init finish! project name: %s", config.GetString("app.name"))
+	log.Debug(msg)
+	fmt.Println(config.GetString("app.name"))
+	return
+
 	redis.Init()
-	msg := fmt.Sprintf("project init finish! project name: %s", viper.GetString("app.name"))
-	log.DebugLogger.Debug(msg)
 
 	testDayuwenDB()
 	testRedis()

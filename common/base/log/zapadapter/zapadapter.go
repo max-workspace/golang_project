@@ -1,7 +1,9 @@
 package zapadapter
 
 import (
+	"bytes"
 	"os"
+	"project/common/tool"
 	"sync"
 
 	"go.uber.org/zap"
@@ -25,6 +27,18 @@ func New(filePath string, level zapcore.Level, maxSize int, maxBackups int, maxA
 		core := newCore(filePath, level, maxSize, maxBackups, maxAge, compress)
 		adapterInstance.zapLogger = zap.New(core, zap.AddCaller(), zap.Development(), zap.Fields(zap.String("serviceName", serviceName)))
 	})
+	return adapterInstance
+}
+
+// NewCustom new custom log adapter
+func NewCustom(fileName, filePath string, level zapcore.Level, maxSize int, maxBackups int, maxAge int, compress bool, serviceName string) *adapter {
+	var buffer bytes.Buffer
+	buffer.WriteString(filePath)
+	buffer.WriteString(tool.GetFileNameWithTimestamp(fileName))
+	fileFullPath := buffer.String()
+	core := newCore(fileFullPath, level, maxSize, maxBackups, maxAge, compress)
+	adapterInstance = &adapter{}
+	adapterInstance.zapLogger = zap.New(core, zap.AddCaller(), zap.Development(), zap.Fields(zap.String("serviceName", serviceName)))
 	return adapterInstance
 }
 

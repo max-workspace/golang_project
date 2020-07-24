@@ -5,6 +5,7 @@ app:
       access: logs/access.log
       debug: logs/debug.log
       error: logs/error.log
+    customPath: logs/custom/
   mysql:
     localDemo:
       user: root

@@ -20,6 +20,9 @@ func main() {
 	msg := fmt.Sprintf("project init finish! project name: %s", config.GetString("app.name"))
 	log.Debug(msg)
 
+	clog := app.GetCustomLog("test", config.GetString("app.log.customPath"), config.GetString("app.name"))
+	clog.Debug("hhh")
+
 	testRedis()
 	testDayuwenDB()
 }

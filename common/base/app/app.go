@@ -18,12 +18,21 @@ type application struct {
 	redis  redis.Instance
 }
 
+type logEntry struct {
+	log   log.Instance
+	ready chan struct{} // closed when log is ready
+}
+
 var (
 	app            *application
 	loadAppOnce    sync.Once
 	loadConfigOnce sync.Once
 	loadLogOnce    sync.Once
 	loadRedisOnce  sync.Once
+
+	logMap         map[string]*logEntry
+	logMapLock     sync.Mutex
+	loadLogMapOnce sync.Once
 )
 
 // Instance get application singleton
@@ -65,4 +74,24 @@ func (app *application) GetRedis() redis.Instance {
 		app.redis = redisInstance
 	})
 	return app.redis
+}
+
+// GetCustomLog get custom log
+func (app *application) GetCustomLog(key, path, project string) log.Instance {
+	loadLogMapOnce.Do(func() {
+		logMap = make(map[string]*logEntry)
+	})
+	logMapLock.Lock()
+	item := logMap[key]
+	if item == nil {
+		item = &logEntry{ready: make(chan struct{})}
+		logMap[key] = item
+		logMapLock.Unlock()
+		item.log = zapadapter.NewCustom(key, path, zapcore.DebugLevel, 128, 30, 7, true, project)
+		close(item.ready)
+	} else {
+		logMapLock.Unlock()
+		<-item.ready
+	}
+	return item.log
 }

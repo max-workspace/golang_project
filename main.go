@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"project/common/base/app"
 	"project/common/base/db/dayuwen"
+	"project/common/base/errors"
 	"project/model"
 )
 
@@ -25,6 +26,9 @@ func main() {
 
 	testRedis()
 	testDayuwenDB()
+
+	err := testError()
+	fmt.Println(err)
 }
 
 func testDayuwenDB() {
@@ -54,4 +58,16 @@ func testRedis() {
 		panic(err)
 	}
 	fmt.Println("key", val)
+}
+
+func testError() error {
+	err := testError1()
+	if err != nil {
+		return errors.Trace(err, "test error desc")
+	}
+	return nil
+}
+
+func testError1() error {
+	return errors.Trace(fmt.Errorf("test error 1"), "test error 1 desc")
 }
